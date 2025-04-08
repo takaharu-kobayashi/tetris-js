@@ -35,6 +35,15 @@
       color: #ccc;
       text-align: center;
     }
+
+    #paused {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2rem;
+      color: #ff0;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -45,8 +54,9 @@
   </div>
   <canvas id="tetris" width="240" height="400"></canvas>
   <div id="controls">
-    Controls: ← → (Move) | ↓ (Drop) | Q / W (Rotate)
+    Controls: ← → (Move) | ↓ (Drop) | Q / W (Rotate) | P (Pause)
   </div>
+  <div id="paused">PAUSED</div>
 
   <script>
     const canvas = document.getElementById('tetris');
@@ -55,6 +65,9 @@
 
     const scoreEl = document.getElementById('score');
     const levelEl = document.getElementById('level');
+    const pausedEl = document.getElementById('paused');
+
+    let isPaused = false;
 
     function createMatrix(w, h) {
       const matrix = [];
@@ -206,14 +219,21 @@
     let lastTime = 0;
 
     function update(time = 0) {
-      const deltaTime = time - lastTime;
-      lastTime = time;
-      dropCounter += deltaTime;
-      if (dropCounter > dropInterval) {
-        playerDrop();
+      if (!isPaused) {
+        const deltaTime = time - lastTime;
+        lastTime = time;
+        dropCounter += deltaTime;
+        if (dropCounter > dropInterval) {
+          playerDrop();
+        }
+        draw();
       }
-      draw();
       requestAnimationFrame(update);
+    }
+
+    function togglePause() {
+      isPaused = !isPaused;
+      pausedEl.style.display = isPaused ? 'block' : 'none';
     }
 
     document.addEventListener('keydown', event => {
@@ -227,6 +247,8 @@
         playerRotate(-1);
       } else if (event.key === 'w') {
         playerRotate(1);
+      } else if (event.key.toLowerCase() === 'p') {
+        togglePause();
       }
     });
 
